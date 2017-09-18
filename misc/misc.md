@@ -106,3 +106,51 @@ Sdram空间
 >
 > <img src="pictures/12.png" width = "450" height = "300" align=center />
 > <img src="pictures/13.png" width = "450" height = "700" align=center />
+
+##### UBI
+###### UBI简介
+>**Overview**
+>
+>UBI全称"Unsorted Block Images"。它是工作于raw flash devices之上的volume管理系统，它管理一个单一physical flash设备上的多个logical volume，能够把I/O负载均匀的分发到flash chip上。
+>
+>在一定意义上，UBI可以和Logical Volume Manager相比较。LVM映射logical sector到物理sectors，UBI映射logical eraseblcok到physical eraseblocks。但是除了映射，UBI还实现了wear-leveling和透明的I/O错误的管理。
+>
+>一个UBI volume是一组连续的logical eraseblocks(LEBs)。每一个逻辑eraseblcok可以被映射为任意的physical eraseblock。这个映射是由UBI管理，并且对上层隐藏了global wear-leveling机制（记录per-physical eraseblock erase counters 以及透明的移动more worn-out数据到less worn-out上）。
+>
+>UBI volume在创建时确定尺寸大小，也可以在日后改变（volume是动态re-sizable）。UBI有user-space工具可以用来管理UBI volumes。
+>
+>有两种UBI volume，动态的和静态的。静态volumes是只读的，内容由CRC-32 checksums保护；而动态volume是read-write，上层负责确保数据的完整性。
+>
+>UBI处理坏块，上层不需要关心坏块管理。UBI有一个保留的physical eraseblocks pool，当一个physical eraseblock变成坏块，UBI透明的用一个好physical block替换这个坏块。UBI把新出现的physical eraseblock的数据移动到好physical eraseblock。UBI volume对发生的事毫无察觉。
+>
+>NAND flashes在读写操作时可能会发生bit-flips。Bit-flips通过ECC checksums纠正，但是积累到一定数据可能会发生数据丢失。UBI会移动发生bit-flips的数据到另外一个physical eraseblocks。这个过程叫scrubbing。scrubbing过程是后台的，并且对上层透明。
+
+详见[UBI介绍](http://blog.csdn.net/kickxxx/article/details/6707589#t8)
+
+###### UBI Volume
+> **Calculations**
+> Usable Size Calculation
+>
+>As documented here, UBI reserves a certain amount of space for management and bad PEB handling operations. Specifically:
+>
+>    2 PEBs are used to store the UBI volume table
+    1 PEB is reserved for wear-leveling purposes;
+    1 PEB is reserved for the atomic LEB change operation;
+    a % of PEBs is reserved for handling bad EBs. The default for NAND is 1%
+    UBI stores the erase counter (EC) and volume ID (VID) headers at the beginning of each PEB. 1 min I/O unit is required for each of these.
+>
+> To calculate the full overhead, we need the following values:
+ Symbol    Meaning     Value for XO test case
+ W     total number of physical eraseblocks on the flash chip (NB: the entire chip, not the MTD partition)
+ SP    PEB Size    128KiB
+ SL    LEB Size    128KiB - 2 * 2KiB = 124 KiB
+ P     Ttotal number of physical eraseblocks on the MTD partition  200MiB / 128KiB = 1600
+ BB    number of bad blocks on the MTD partition;
+ BR    number of PEBs reserved for bad PEB handling. it is 20 * W/1024 for NAND by default, and 0 for NOR and other flash types which do not have bad PEBs
+ B     B - MAX(BR,BB);
+ O     The overhead related to storing EC and VID headers in bytes, i.e. O = SP - SL   4KiB
+>
+> UBI Overhead = (B + 4) * SP + O * (P - B - 4)
+       = (16 + 4) * 128Kib + 4 KiB * (1600 - 16 - 4)
+       = 8880 KiB
+       = 69.375 PEBs (round to 69)
