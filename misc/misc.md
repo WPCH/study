@@ -88,7 +88,7 @@ Relocation
   全局变量：利用rel.dyn段修改地址
             rel.dyn段存有label地址，加上offset找到新地址，对其内容加上offset即为全局变量新地址
 Sdram空间
-  top-->hide mem-->logbuff-->pram-->tlb space(16K)-->framebuffer space-->uboot code space-->addr-->malloc len-->bd len-->gd len-->fdt-->12 byte-->addr_sp
+  top-->hide mem-->logbuff-->pram-->tlb space(16K)-->framebuffer space-->uboot code space-->addr-->malloc len-->bd len-->gd len-->fdt-->16 byte-->addr_sp
 ```
 
 #### 开源许可证
@@ -129,6 +129,7 @@ Sdram空间
 
 ###### UBI Volume
 > **Calculations**
+>
 > Usable Size Calculation
 >
 >As documented here, UBI reserves a certain amount of space for management and bad PEB handling operations. Specifically:
@@ -154,3 +155,64 @@ Sdram空间
        = (16 + 4) * 128Kib + 4 KiB * (1600 - 16 - 4)
        = 8880 KiB
        = 69.375 PEBs (round to 69)
+
+##### DRAM
+**Organization**
+> <img src="pictures/23.png" width = "250" height = "150" align=center />
+
+> <img src="pictures/22.png" width = "450" height = "300" align=center />
+>
+>Row
+>>DRAM Memory 中的 Row 与 Wordline 是一一对应的，一个 Row 本质上就是所有接在同一根 Wordline 上的 Cells
+>
+>Column
+>>Column 是 Memory Array 中可寻址的最小单元。一个 Row 中有 n 个 Column，其中 n = Row Size / Data Width。
+>
+>Column size(Data width)
+>>一个 Column 的 Size 即为该 Column 上所包含的 Cells 的数量，与 Data Width 相同。
+
+**Interface**
+> <img src="pictures/24.png" width = "450" height = "280" align=center />
+
+**Operations**
+>Active
+>>Active Command 会通过 BA[1:0] 和 A[12:0] 信号，选中指定 Bank 中的一个 Row，并打开该 Row 的 wordline。在进行 Read 或者 Write 前，都需要先执行 Active Command。
+>
+>Read
+>>Read Command 将通过 A[12:0] 信号，发送需要读取的 Column 的地址给 SDRAM。然后 SDRAM 再将 Active Command 所选中的 Row 中，将对应 Column 的数据通过 DQ[15:0] 发送给 Host。
+>>
+>>Host 端发送 Read Command，到 SDRAM 将数据发送到总线上的需要的时钟周期个数定义为 CL。
+>
+>Write
+>>Write Command 将通过 A[12:0] 信号，发送需要写入的 Column 的地址给 SDRAM，同时通过 DQ[15:0] 将待写入的数据发送给 SDRAM。然后 SDRAM 将数据写入到 Actived Row 的指定 Column 中。
+>>
+>>SDRAM 接收到最后一个数据到完成数据写入到 Memory 的时间定义为 tWR （Write Recovery）。
+>
+>Precharge
+>>在进行下一次的 Read 或者 Write 操作前，必须要先执行 Precharge 操作。（具体的细节可以参考 DRAM Storage Cell 章节）
+>>
+>>Precharge 操作是以 Bank 为单位进行的，可以单独对某一个 Bank 进行，也可以一次对所有 Bank 进行。如果 A10 为高，那么 SDRAM 进行 All Bank Precharge 操作，如果 A10 为低，那么 SDRAM 根据 BA[1:0] 的值，对指定的 Bank 进行 Precharge 操作。
+>>
+>>SDRAM 完成 Precharge 操作需要的时间定义为 tPR。
+>
+>Auto-Refresh
+>>DRAM 的 Storage Cell 中的电荷会随着时间慢慢减少，为了保证其存储的信息不丢失，需要周期性的对其进行刷新操作。
+>>
+>>SDRAM 的刷新是按 Row 进行，标准中定义了在一个刷新周期内（常温下 64ms，高温下 32ms）需要完成一次所有 Row 的刷新操作。
+>>
+>>为了简化 SDRAM Controller 的设计，SDRAM 标准定义了 Auto-Refresh 机制，该机制要求 SDRAM Controller 在一个刷新周期内，发送 8192 个 Auto-Refresh Command，即 AR， 给 SDRAM。
+>>
+>>SDRAM 每收到一个 AR，就进行 n 个 Row 的刷新操作，其中，n = 总的 Row 数量 / 8192 。
+>>此外，SDRAM 内部维护一个刷新计数器，每完成一次刷新操作，就将计数器更新为下一次需要进行刷新操作的 Row。
+>>
+>>一般情况下，SDRAM Controller 会周期性的发送 AR，每两个 AR 直接的时间间隔定义为 tREFI = 64ms / 8192 = 7.8 us。
+>>
+>>SDRAM 完成一次刷新操作所需要的时间定义为 tRFC, 这个时间会随着 SDRAM Row 的数量的增加而变大。
+>>
+>>由于 AR 会占用总线，阻塞正常的数据请求，同时 SDRAM 在执行 refresh 操作是很费电，所以在 SDRAM 的标准中，还提供了一些优化的措施，例如 DRAM Controller 可以最多延时 8 个 tREFI 后，再一起把 8 个 AR 同时发出。
+>>
+>
+>Self-Refresh
+>>Host 还可以让 SDRAM 进入 Self-Refresh 模式，降低功耗。在该模式下，Host 不能对 SDRAM 进行读写操作，SDRAM 内部自行进行刷新操作保证数据的完整。通常在设备进入待机状态时，Host 会让 SDRAM 进入 Self-Refresh 模式，以节省功耗。
+
+详见[DRAM原理](http://www.wowotech.net/basic_tech/307.html)
