@@ -65,15 +65,46 @@ clone
   检查设置need_resched（唤醒进程会直接设置）
 ```
 
+#### __schedule
+```
+选择和切换到一个合适的进程运行
+pick_next_task
+  执行调度类中的pick_next_task，如果当前进程的调度类是CFS，且系统就绪队列的进程数量等于CFS就绪队列进程数量，则说明只有普通进程，否则遍历所有调度类，顺序为stop->dl->rt->fair->idle
+context_switch
+```
+
 #### 调度时机(发生在内核空间时即内核抢占)
 >* 从系统调用或者异常中断返回用户空间时（check TIF_NEED_RESCHED）
->* 从中断上下文返回内核空间时（check  preempt_count&TIF_NEED_RESCHED）
+>* 从中断上下文返回内核空间时（check  preempt_count & TIF_NEED_RESCHED）
 >* preempt_count从正整数变为0时（check TIF_NEED_RESCHED, then preempt_schedule）
 >* 显式的调用schedule()
 >* 任务阻塞
 >* 唤醒进程时(隐式)
+```c
+__irq_svc->svc_preempt->preempt_schedule_irq
 
-#### preempt_count
+asmlinkage __visible void __sched preempt_schedule_irq(void)
+{
+	enum ctx_state prev_state;
+
+	/* Catch callers which need to be fixed */
+	BUG_ON(preempt_count() || !irqs_disabled());
+
+	prev_state = exception_enter();
+
+	do {
+		preempt_disable();
+		local_irq_enable();
+		__schedule(true);
+		local_irq_disable();
+		sched_preempt_enable_no_resched();
+	} while (need_resched());
+
+	exception_exit(prev_state);
+}
+```
+**preempt_count**
+><img src="pictures/8.png" width = "600" height = "120" align=center />
 ```
 local_bh_disable/enable(enable会执行do_softirq（满足条件）)
 preempt_disable/enable(enable会触发调度（满足条件）)
@@ -92,6 +123,34 @@ preempt_disable/enable(enable会触发调度（满足条件）)
   		 */
   	} while (need_resched());
   }
+```
+
+#### context_switch
+```c
+  mm
+  if (!mm) { //内核进程
+  	next->active_mm = oldmm;
+  	atomic_inc(&oldmm->mm_count);
+  	enter_lazy_tlb(oldmm, next);
+  } else //用户进程
+  	switch_mm(oldmm, mm, next);
+
+  switch_mm 实质是把新进程的页表基地址设置到页表基地址寄存器中
+      #TLB的处理（ARM）
+          mm->context.id: bit[0-7]:ASID, bit[8-31]:generation（ASID溢出增加ASID_FIRST_VERSION）
+
+          asid = find_next_zero_bit(asid_map, NUM_USER_ASIDS, cur_idx);
+          if (asid == NUM_USER_ASIDS) {//ASID溢出
+          	generation = atomic64_add_return(ASID_FIRST_VERSION,
+          					 &asid_generation);
+          	flush_context(cpu); //冲刷TLB
+          	asid = find_next_zero_bit(asid_map, NUM_USER_ASIDS, 1); //asid_map清零
+          }
+      #cpu_switch_mm=>cpu_v7_switch_mm
+        设置TTBR和ASID
+
+  switch_to=>__switch_to
+    把prev进程相关寄存器上下文保存到该进程thread_info->cpu_context，再把next进程thread_info->cpu_context恢复到CPU寄存器
 ```
 
 #### 优先级
@@ -154,39 +213,11 @@ load_avg = u_0` + y*(u_0 + u_1*y + u_2*y^2 + ... )
           cfs_rq->runnable_load_sum += weight * contrib;
 ```
 
-#### context_switch
-```c
-  mm
-  if (!mm) { //内核进程
-  	next->active_mm = oldmm;
-  	atomic_inc(&oldmm->mm_count);
-  	enter_lazy_tlb(oldmm, next);
-  } else //用户进程
-  	switch_mm(oldmm, mm, next);
-
-  switch_mm 实质是把新进程的页表基地址设置到页表基地址寄存器中
-      #TLB的处理（ARM）
-          mm->context.id: bit[0-7]:ASID, bit[8-31]:generation（ASID溢出增加ASID_FIRST_VERSION）
-
-          asid = find_next_zero_bit(asid_map, NUM_USER_ASIDS, cur_idx);
-          if (asid == NUM_USER_ASIDS) {//ASID溢出
-          	generation = atomic64_add_return(ASID_FIRST_VERSION,
-          					 &asid_generation);
-          	flush_context(cpu); //冲刷TLB
-          	asid = find_next_zero_bit(asid_map, NUM_USER_ASIDS, 1); //asid_map清零
-          }
-      #cpu_switch_mm=>cpu_v7_switch_mm
-        设置TTBR和ASID
-
-  switch_to=>__switch_to
-    把prev进程相关寄存器上下文保存到该进程thread_info->cpu_context，再把next进程thread_info->cpu_context恢复到CPU寄存器
-```
-
 #### 组调度
 > CFS为例
 > * 创建组调度tg时，tg为每个CPU同时创建组调度内部使用的cfs_rq就绪队列
 > * 组调度作为一个调度实体加入系统CFS就绪队列rq->cfs_rq中
-> * 进程加入一个组后，就脱了系统CFS就绪队列，加入组调度的CFS就绪队列tg->cfs_rq中
+> * 进程加入一个组后，就脱离了系统CFS就绪队列，加入组调度的CFS就绪队列tg->cfs_rq中
 > * 选择下一个进程时，从系统CFS就绪队列开始，如果选中的se是组调度tg，则从tg的就绪队列中选中一个进程
 
 #### SMP负载均衡
