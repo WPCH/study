@@ -8,7 +8,9 @@
 > <img src="pictures/3.png" width = "600" height = "420" align=center />
 >
 > Read Buffer、Write Buffer：与下一级存储设备进行数据交互
+>
 > Eviction Buffer：cache line换出缓冲
+> 
 > Linefill Buffer：cache line填充缓冲
 #### Load
 > Non-Cacheable
@@ -39,7 +41,7 @@
 
 **DSB**
 > 要求上一条读写指令完成后才能开始下一个请求
-> 
+>
 > <img src="pictures/6.png" width = "400" height = "300" align=center />
 >
 > 与DMB区别：Master0接口在收到壁垒请求后，不立即回复壁垒响应，而等待收到所有下一级接口的壁垒响应，才发送自身的壁垒响应给Master0，此时上一条读写指令已经完成
