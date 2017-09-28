@@ -6,6 +6,9 @@ Study
 
 ## 快速索引
 * [CPU_Arch](./CPU_Arch/CPU_Arch.md)
+  - [ARM](./CPU_Arch/ARM/ARM.md)
 * [Synchronization](./Synchronization/Synchronization.md)
 * [Process_Scheduling](./Process_Scheduling/Process_Scheduling.md)
+* [Interrupt](./Interrupt/Interrupt.md)
+* [kernel_others](./kernel_others/kernel_others.md)
 * [misc](./misc/misc.md)
