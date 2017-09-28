@@ -26,16 +26,20 @@
 ### Memory Barrier
 **DMB**
 > 要求上一条读写指令发出请求后可以继续下一条读写指令的请求
+>
 > <img src="pictures/4.png" width = "400" height = "300" align=center />
 >
 > Master0发出data，又发出DMB，Master0接口回复壁垒响应，Slave0接口收到壁垒请求，等待data到达，Master0发出第二个数据，因为它已经收到它的所有下级(Master0接口)的壁垒回应，所以它又写出了flag
+>
 > =>
+>
 > <img src="pictures/5.png" width = "400" height = "300" align=center />
 >
 > flag在Master0接口中等待它的所有下一级接口的壁垒响应。而data达到了Slave0后，壁垒响应走到了Master0接口，flag继续往下走
 
 **DSB**
 > 要求上一条读写指令完成后才能开始下一个请求
+> 
 > <img src="pictures/6.png" width = "400" height = "300" align=center />
 >
 > 与DMB区别：Master0接口在收到壁垒请求后，不立即回复壁垒响应，而等待收到所有下一级接口的壁垒响应，才发送自身的壁垒响应给Master0，此时上一条读写指令已经完成
