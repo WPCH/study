@@ -148,12 +148,3 @@ write back
 
 ###### Cache系统结构（MESI之类协议引起，带来memory order问题，引入memory barrier来解决）
 >![img](pictures/28.png)
-
-#### ARM架构相关技术，如ARM指令集、异常、MMU等（该部分问题细节参考ARM文档）
-```
-指令（realview汇编器指南）
-  ARM指令
-  NEON&VFP指令
-MMU
-  一级、二级映射，建立相应页表
-```
