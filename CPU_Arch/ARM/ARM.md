@@ -8,9 +8,7 @@
 > <img src="pictures/3.png" width = "600" height = "420" align=center />
 >
 > Read Buffer、Write Buffer：与下一级存储设备进行数据交互
->
-> Eviction Buffer：cache line换出缓冲
-> 
+> Eviction Buffer：cache line换出缓冲  
 > Linefill Buffer：cache line填充缓冲
 #### Load
 > Non-Cacheable
