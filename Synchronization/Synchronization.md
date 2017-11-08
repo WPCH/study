@@ -172,7 +172,11 @@ bit[16~31]：表示有一个正在持有或pending状态的写者，以及睡眠
 ```
 > <img src="pictures/4.png" width = "600" height = "360" align=center />
 
->![img](pictures/5.jpg)
+> ![img](pictures/5.png)
+> * RCU_DONE_TAIL指向的rcu_head对象之前的对象是可以销毁的对象。<br>
+> * RCU_WAIT_TAIL指向的正在等待宽限期的元素。<br>
+> * RCU_NEXT_READY_TAIL指向的是等待下次宽限期的元素。<br>
+> * RCU_NEXT_TAIL指向最后一个元素，这个元素总是指向NULL。
 
 ### 完成量
 
