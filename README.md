@@ -4,6 +4,18 @@ Study
 
 **该系列文档为归纳总结性质，一般不会包含细枝末节（特别关键的除外）**
 
+**主要学习资料包括：**
+* kernel源码
+* 书籍：
+  《深入理解Linux内核》、《深入Linux内核架构》、《奔跑吧Linux内核》、《perfbook》、《大话处理器》、ARM Spec等
+* 博客：
+  [蜗窝科技](http://www.wowotech.net/)
+  [AderStep](http://blog.csdn.net/gatieme?viewmode=contents)
+  [泰晓科技](http://www.tinylab.org/)
+  [tolimit](http://www.cnblogs.com/tolimit/)
+  [sailing的博客（王齐）](http://blog.sina.com.cn/s/articlelist_1685243084_0_1.html)
+  ...
+
 ## 快速索引
 * [CPU_Arch](./CPU_Arch/CPU_Arch.md)
   - [ARM](./CPU_Arch/ARM/ARM.md)
