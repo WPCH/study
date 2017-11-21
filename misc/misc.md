@@ -47,6 +47,48 @@ small chunk：small bins-->last remainder
 >
 >3. gcc  -fstack-protector
 
+### debug
+
+* objdump、addr2line
+* ftrace
+  <img src="pictures/25.png" width = "440" height = "320" align=center />
+
+  [Documentation/trace/ftrace.txt](http://elixir.free-electrons.com/linux/latest/source/Documentation/trace/ftrace.txt)
+* systemtap
+  compile
+  > target <br>
+  > ./configure --host=arm-linux-gnueabi --disable-translator --with-elfutils=/home/patrick/tasks/app/elfutils-0.159 --without-python2-probes --without-python3-probes --without-selinux --disable-docs <br>
+  > host <br>
+  > ./configure --with-elfutils=/home/patrick/tasks/app/elfutils-0.159 --without-python2-probes --without-python3-probes --without-selinux --disable-docs --prefix=/home/patrick/scsi_expand/work/stap
+
+  kernel configure
+  > • CONFIG_DEBUG_FS: Kernel Hacking -> Debug Filesystem <br>
+• CONFIG_KPROBES: General Setup -> Kprobes <br>
+• CONFIG_DEBUG_INFO: Kernel hacking -> Compile the kernel with debug info <br>
+• CONFIG_RELAY: General Setup -> user space relay support <br>
+• CONFIG_PROFILING: General Setup -> Profiling support (EXPERIMENTAL) + General Setup -> Oprofile system <br>
+profiling (EXPERIMENTAL) <br>
+• CONFIG_TRACEPOINTS (via CONFIG_SLAB), generally already enabled <br>
+
+  查看probe point
+  > stap -r [kernel source directory] -a arm -B CROSS_COMPILE=[cross-compile] -L 'kernel.statement("do_nanosleep@kernel/time/hrtimer.c:*")'
+
+* perf
+ [Linux 性能诊断 perf使用指南](https://github.com/digoal/blog/blob/master/201611/20161127_01.md)
+  cross compile
+  >Makefile <br>
+  export EXTLIBS =--static -lelf -lebl -I/home/patrick/tasks/app/zlib-1.2.8/install_gnueabi/include -I/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/include -L/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/lib <br>
+  export EXTRA_CFLAGS=-I/home/patrick/tasks/app/zlib-1.2.8/install_gnueabi/include -I/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/include <br>
+  build <br>
+  make -j4  LDFLAGS=-static ARCH=arm CROSS_COMPILE=/home/patrick/tasks/new_platform/freescale/l4.1.15/toolchain/gcc-linaro-4.9.4-2017.01-i686_arm-linux-gnueabi/bin/arm-linux-gnueabi-
+
+  火焰图
+  > git clone https://github.com/brendangregg/FlameGraph <br>
+  perf record -F 99 -a -g -- sleep 60 <br>
+  perf script | ./stackcollapse-perf.pl > out.perf-folded <br>
+  ./flamegraph.pl out.perf-folded > perf-kernel.svg <br>
+* gdb
+* strace、ltrace
 ### 红黑树
 #### 二叉树
 ##### 结构
@@ -64,38 +106,8 @@ small chunk：small bins-->last remainder
 ##### 构造过程
 ><img src="pictures/20.png" width = "600" height = "700" align=center />
 
-### 其他
-```
-编译、链接原理，链接脚本编写
-  C==>asm，数据段中数据地址保存在text段中(Label)，用于访问
-```
-#### 数据长度
-><img src="pictures/6.png" width = "300" height = "180" align=center />
-
-#### Debug
-```
-Objdump、addr2line
-Ftrace
-gdb
-Strace、ltrace
-perf
-```
-
-#### Uboot
-```
-Relocation
-  指令：b,bl地址无关
-  全局变量：利用rel.dyn段修改地址
-            rel.dyn段存有label地址，加上offset找到新地址，对其内容加上offset即为全局变量新地址
-Sdram空间
-  top-->hide mem-->logbuff-->pram-->tlb space(16K)-->framebuffer space-->uboot code space-->addr-->malloc len-->bd len-->gd len-->fdt-->16 byte-->addr_sp
-```
-
-#### 开源许可证
-><img src="pictures/21.png" width = "620" height = "350" align=center />
-
-#### driver
-##### USB
+### driver
+#### USB
 >![img](pictures/7.png)
 >
 ><img src="pictures/8.png" width = "350" height = "180" align=center />
@@ -107,8 +119,8 @@ Sdram空间
 > <img src="pictures/12.png" width = "450" height = "300" align=center />
 > <img src="pictures/13.png" width = "450" height = "700" align=center />
 
-##### UBI
-###### UBI简介
+#### UBI
+##### UBI简介
 >**Overview**
 >
 >UBI全称"Unsorted Block Images"。它是工作于raw flash devices之上的volume管理系统，它管理一个单一physical flash设备上的多个logical volume，能够把I/O负载均匀的分发到flash chip上。
@@ -127,7 +139,7 @@ Sdram空间
 
 详见[UBI介绍](http://blog.csdn.net/kickxxx/article/details/6707589#t8)
 
-###### UBI Volume
+##### UBI Volume
 > **Calculations**
 >
 > Usable Size Calculation
@@ -156,7 +168,7 @@ Sdram空间
        = 8880 KiB
        = 69.375 PEBs (round to 69)
 
-##### DRAM
+#### DRAM
 **Organization**
 > <img src="pictures/23.png" width = "250" height = "150" align=center />
 
@@ -216,3 +228,24 @@ Sdram空间
 >>Host 还可以让 SDRAM 进入 Self-Refresh 模式，降低功耗。在该模式下，Host 不能对 SDRAM 进行读写操作，SDRAM 内部自行进行刷新操作保证数据的完整。通常在设备进入待机状态时，Host 会让 SDRAM 进入 Self-Refresh 模式，以节省功耗。
 
 详见[DRAM原理](http://www.wowotech.net/basic_tech/307.html)
+
+### 其他
+```
+编译、链接原理，链接脚本编写
+  C==>asm，数据段中数据地址保存在text段中(Label)，用于访问
+```
+#### 数据长度
+><img src="pictures/6.png" width = "300" height = "180" align=center />
+
+#### Uboot
+```
+Relocation
+  指令：b,bl地址无关
+  全局变量：利用rel.dyn段修改地址
+            rel.dyn段存有label地址，加上offset找到新地址，对其内容加上offset即为全局变量新地址
+Sdram空间
+  top-->hide mem-->logbuff-->pram-->tlb space(16K)-->framebuffer space-->uboot code space-->addr-->malloc len-->bd len-->gd len-->fdt-->16 byte-->addr_sp
+```
+
+#### 开源许可证
+><img src="pictures/21.png" width = "620" height = "350" align=center />
