@@ -67,7 +67,8 @@ struct free_area {
 ### 内存回收
 [内存回收](./内存回收/内存回收.md)
 
-### 内存规整（TODO）
+### 内存规整
+[内存规整](http://www.cnblogs.com/tolimit/p/5286663.html)
 
 ### 高端内存相关(虚拟地址空间 ARM32)
 ```

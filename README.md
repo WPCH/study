@@ -14,6 +14,7 @@ Study
   [泰晓科技](http://www.tinylab.org/)
   [tolimit](http://www.cnblogs.com/tolimit/)
   [sailing的博客（王齐）](http://blog.sina.com.cn/s/articlelist_1685243084_0_1.html)
+  [IBM developerworks](https://www.ibm.com/developerworks/cn/views/linux/libraryview.jsp)
   ...
 
 ## 快速索引
@@ -25,6 +26,7 @@ Study
   - [内存分配](./mm/内存分配/内存分配.md)
   - [进程地址空间](./mm/进程地址空间/进程地址空间.md)
   - [内存回收](./mm/内存回收/内存回收.md)
+  - [内存规整](http://www.cnblogs.com/tolimit/p/5286663.html)
 * [Interrupt](./Interrupt/Interrupt.md)
 * [kernel_others](./kernel_others/kernel_others.md)
 * [misc](./misc/misc.md)
