@@ -54,7 +54,7 @@ small chunk：small bins-->last remainder
   <img src="pictures/25.png" width = "440" height = "320" align=center />
 
   [Documentation/trace/ftrace.txt](http://elixir.free-electrons.com/linux/latest/source/Documentation/trace/ftrace.txt)
-* systemtap
+* systemtap <br>
   compile
   > target <br>
   > ./configure --host=arm-linux-gnueabi --disable-translator --with-elfutils=/home/patrick/tasks/app/elfutils-0.159 --without-python2-probes --without-python3-probes --without-selinux --disable-docs <br>
@@ -73,8 +73,8 @@ profiling (EXPERIMENTAL) <br>
   查看probe point
   > stap -r [kernel source directory] -a arm -B CROSS_COMPILE=[cross-compile] -L 'kernel.statement("do_nanosleep@kernel/time/hrtimer.c:*")'
 
-* perf
- [Linux 性能诊断 perf使用指南](https://github.com/digoal/blog/blob/master/201611/20161127_01.md)
+* perf <br>
+ [Linux 性能诊断 perf使用指南](https://github.com/digoal/blog/blob/master/201611/20161127_01.md) <br>
   cross compile
   >Makefile <br>
   export EXTLIBS =--static -lelf -lebl -I/home/patrick/tasks/app/zlib-1.2.8/install_gnueabi/include -I/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/include -L/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/lib <br>
