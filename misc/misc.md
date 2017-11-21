@@ -50,7 +50,7 @@ small chunk：small bins-->last remainder
 ### debug
 
 * objdump、addr2line
-* ftrace
+* ftrace <br>
   <img src="pictures/25.png" width = "440" height = "320" align=center />
 
   [Documentation/trace/ftrace.txt](http://elixir.free-electrons.com/linux/latest/source/Documentation/trace/ftrace.txt)
