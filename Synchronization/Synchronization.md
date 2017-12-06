@@ -64,7 +64,7 @@ static inline void arch_spin_lock(arch_spinlock_t *lock)
     smp_mb();
 }
 ```
-使用的时机：临界区很小、中断（多核才可出现，UP会导致重入）
+使用的时机：临界区很小、中断（只能核间争用，单个CPU发生争用即死锁，故临界区内不能出现调度）
 
 ### rwspinlock
 ARM
@@ -181,12 +181,15 @@ bit[16~31]：表示有一个正在持有或pending状态的写者，以及睡眠
 ### 完成量
 
 ### memory barrier
-```
-barriers() 禁止编译优化导致的乱序
-ARM：
-数据内存屏障（DMB）：在DMB之后的显示的内存访问执行前，保证所有在DMB指令之前的内存访问完成。
-数据同步屏障（DSB）：等待所有在DSB指令之前的指令完成（之后再执行后续的指令）。
+* barriers() 禁止编译优化导致的乱序
+* 指令
+> ARM：
+> 1. barrier指令<br>
+数据内存屏障（DMB）：在DMB之后的显示的内存访问执行前，保证所有在DMB指令之前的内存访问完成。<br>
+数据同步屏障（DSB）：等待所有在DSB指令之前的指令完成（之后再执行后续的指令）。<br>
 指令同步屏障（ISB）：清除（flush）流水线，使得所有ISB之后执行的指令都是从cache或内存中获得的（而不是流水线中的）。
+> 2. load acquire、store release<br>
+  lda、stl<br>
+ ![img](pictures/7.png)
 
-原因，原理见perfbook
-```
+* 原因，原理见perfbook
