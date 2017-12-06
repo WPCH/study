@@ -7,7 +7,7 @@ Study
 **主要学习资料包括：**
 * kernel源码
 * 书籍：
-  《深入理解Linux内核》、《深入Linux内核架构》、《奔跑吧Linux内核》、《perfbook》、《大话处理器》、ARM Spec等
+  《深入理解Linux内核》、《深入Linux内核架构》、《奔跑吧Linux内核》、《perfbook》、《大话处理器》、ARM Spec ...
 * 博客：
   [蜗窝科技](http://www.wowotech.net/)
   [AderStep](http://blog.csdn.net/gatieme?viewmode=contents)
