@@ -6,24 +6,58 @@
 * tick
 ```
 Period/Oneshot
+HZ/NOHZ
 Hrtimer
-hz
-Hz-->nohz-lr
-|-->nohz-hr   tick中处理hrtimer(hrtimer_run_queues)并在timer_softirq里判断和切换至nohz-lr or nohz-hr
- tick用hrtimer实现（nohz-hr）
+```
+* clockevent处理：
+```
+HZ：
+  tick_handle_periodic->tick_periodic
+                          update_wall_time
+                          update_process_times
+NOHZ_MODE_LOWRES：
+  tick_nohz_handler
+    tick_sched_do_timer
+    tick_sched_handle
+NOHZ_MODE_HIGHRES:
+  hrtimer_interrupt
+    tick_sched_timer(tick handled as a hrtimer)
+      tick_sched_do_timer
+      tick_sched_handle
+```
+* 模式切换
+```
+period=>NOHZ_MODE_LOWRES
+tick_handle_periodic->tick_periodic->update_process_times
+                                      ->run_local_timers
+                                        ->hrtimer_run_queues
+                                          ->tick_check_oneshot_change
+                                            ->tick_nohz_switch_to_nohz
+                                              ->tick_switch_to_oneshot(tick_nohz_handler)
+NOHZ_MODE_LOWRES=>NOHZ_MODE_HIGHRES
+tick_nohz_handler->tick_sched_handle->update_process_times
+                                        ->run_local_timers
+                                          ->hrtimer_run_queues
+                                            ->hrtimer_switch_to_hres
+                                              ->tick_init_highres
+                                                ->tick_switch_to_oneshot(hrtimer_interrupt)
+```
 
-idle 中的处理
-  设置下一个tick尽量晚到期，max_idle_ns
-  若关闭local timer，设置Broadcast tick
+* idle中的处理
+```
+  1. 若关闭local timer，设置Broadcast tick
+  2. tick_nohz_idle_enter
+      停止tick（如果下一个定时器的到期时间与当前jiffies相差大于1时）
+      设置下一个定时器的到期时间（不能超过max_idle_ns）
 ```
 * tick_sched
 ```
-tick_sched_do_timer->update_jiffies64->update_wall_time->timekeeping
-update_process_times->account_process_tick(user/sys(irq,sirq,sys)/idle)
-                      run_local_timers->raise TIMER_SOFTIRQ
-                      rcu_check_callbacks
-                      scheduler_tick
-                      run_posix_cpu_timers
+tick_sched_do_timer->tick_do_update_jiffies64->update_wall_time->timekeeping
+tick_sched_handle->update_process_times->account_process_tick(user/sys(irq,sirq,sys)/idle)
+                                         run_local_timers->raise TIMER_SOFTIRQ
+                                         rcu_check_callbacks
+                                         scheduler_tick
+                                         run_posix_cpu_timers
 ```
 
 ## SMP boot
