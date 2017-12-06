@@ -79,7 +79,7 @@ context_switch
 >* preempt_count从正整数变为0时（check TIF_NEED_RESCHED, then preempt_schedule）
 >* 显式的调用schedule()
 >* 任务阻塞
->* 唤醒进程时(隐式)
+>* 唤醒进程时(wakeup-preemption)
 ```c
 __irq_svc->svc_preempt->preempt_schedule_irq
 
@@ -156,8 +156,37 @@ preempt_disable/enable(enable会触发调度（满足条件）)
 #### 优先级
 >![img](pictures/2.png)
 
+#### wakeup
+```
+wake_up_process
+  try_to_wake_up
+    raw_spin_lock_irqsave
+    ttwu_queue
+      ttwu_do_activate
+        ttwu_activate
+          activate_task
+            enqueue_task //加入runqueue
+        ttwu_do_wakeup //Mark the task runnable and perform wakeup-preemption.
+          check_preempt_curr //查看进程是否可以抢占当前进程
+    raw_spin_unlock_irqrestore
+      local_irq_restore
+      preempt_enable //抢占点
+
+wake_up_new_task
+  raw_spin_lock_irqsave
+  __task_rq_lock
+  activate_task
+    enqueue_task //加入runqueue
+  check_preempt_curr //查看进程是否可以抢占当前进程
+  task_rq_unlock
+    raw_spin_unlock_irqrestore
+      local_irq_restore
+      preempt_enable //抢占点
+```
 #### CFS
-    nice=>weight=>vruntime
+```
+nice=>weight=>vruntime
+```
 >![img](pictures/3.png)
 >![img](pictures/4.png)
 >![img](pictures/5.png)
