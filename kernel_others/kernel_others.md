@@ -5,20 +5,21 @@
 * clockevent
 * tick
 ```
-Period/Oneshot
-HZ/NOHZ
-Hrtimer
+HZ--Period
+NOHZ--Oneshot(lowres highres)
 ```
 * clockevent处理：
 ```
-HZ：
+HZ/NOHZ_MODE_INACTIVE：
   tick_handle_periodic->tick_periodic
                           update_wall_time
                           update_process_times
+
 NOHZ_MODE_LOWRES：
   tick_nohz_handler
     tick_sched_do_timer
     tick_sched_handle
+
 NOHZ_MODE_HIGHRES:
   hrtimer_interrupt
     tick_sched_timer(tick handled as a hrtimer)
@@ -27,15 +28,16 @@ NOHZ_MODE_HIGHRES:
 ```
 * 模式切换
 ```
-period=>NOHZ_MODE_LOWRES
+NOHZ_MODE_INACTIVE=>NOHZ_MODE_LOWRES
 tick_handle_periodic->tick_periodic->update_process_times
                                       ->run_local_timers
                                         ->hrtimer_run_queues
                                           ->tick_check_oneshot_change
                                             ->tick_nohz_switch_to_nohz
                                               ->tick_switch_to_oneshot(tick_nohz_handler)
-NOHZ_MODE_LOWRES=>NOHZ_MODE_HIGHRES
-tick_nohz_handler->tick_sched_handle->update_process_times
+
+NOHZ_MODE_INACTIVE=>NOHZ_MODE_HIGHRES
+tick_handle_periodic->tick_periodic->update_process_times
                                         ->run_local_timers
                                           ->hrtimer_run_queues
                                             ->hrtimer_switch_to_hres
