@@ -1,14 +1,26 @@
 ## 进程管理与调度
 [TOC]
 
+### 程序上下文的理解
+**程序context（C环境）**
+* CPU context
+* memory context
+  > memory context一般包括代码段、数据段、栈、堆（可以没有）<br>
+  > 栈的理解：栈存放临时数据（函数调用信息+局部变量），某种意义上是CPU寄存器的扩展
+
+**多线程**
+ * 系统中存在多个程序context，其中cpu context和栈必须独立，即每个线程都有自己的cpu context和栈，代码段、数据段可以复用
+ * 切换时对CPU context进行保存和恢复，CPU context包含了栈指针，故栈也隐式地切换了
+ * Linux的实现：
 ```
 task_struct
   void *stack;
-    union thread_union
-    {
-      struct thread_info thread_info;
-      unsigned long stack[THREAD_SIZE/sizeof(long)];
-    };
+
+union thread_union
+{
+  struct thread_info thread_info;
+  unsigned long stack[THREAD_SIZE/sizeof(long)];
+};
 ```
 >![img](pictures/1.png)
 
