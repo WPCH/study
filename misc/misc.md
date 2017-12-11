@@ -32,16 +32,6 @@ fast bins-->(unsorted bin)bins-->top chunk-->mmaped chunk
 small chunk：small bins-->last remainder
 ```
 
-### RT
-* 临界区可抢占（部分spinlock换成mutex，按优先级排队）
->优先级反转
->
-><img src="pictures/4.png" width = "400" height = "180" align=center />
-* 高精度时钟
-* 中断线程化 (可选，如tick没有线程化)
-* 软中断线程化 (同上)
-* 实时调度算法
-
 ### 栈溢出调试
 ><img src="pictures/5.png" width = "500" height = "280" align=center />
 >
@@ -50,11 +40,30 @@ small chunk：small bins-->last remainder
 ### debug
 
 * objdump、addr2line
+* perf <br>
+  *key word: count*
+ [Linux 性能诊断 perf使用指南](https://github.com/digoal/blog/blob/master/201611/20161127_01.md) <br>
+  cross compile
+  >Makefile <br>
+  export EXTLIBS =--static -lelf -lebl -I/home/patrick/tasks/app/zlib-1.2.8/install_gnueabi/include -I/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/include -L/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/lib <br>
+  export EXTRA_CFLAGS=-I/home/patrick/tasks/app/zlib-1.2.8/install_gnueabi/include -I/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/include <br>
+  build <br>
+  make -j4  LDFLAGS=-static ARCH=arm CROSS_COMPILE=/home/patrick/tasks/new_platform/freescale/l4.1.15/toolchain/gcc-linaro-4.9.4-2017.01-i686_arm-linux-gnueabi/bin/arm-linux-gnueabi-
+
+  火焰图
+  > git clone https://github.com/brendangregg/FlameGraph <br>
+  perf record -F 99 -a -g -- sleep 60 <br>
+  perf script | ./stackcollapse-perf.pl > out.perf-folded <br>
+  ./flamegraph.pl out.perf-folded > perf-kernel.svg <br>
+
 * ftrace <br>
+  *key word: trace*
   <img src="pictures/25.png" width = "440" height = "320" align=center />
 
   [Documentation/trace/ftrace.txt](http://elixir.free-electrons.com/linux/latest/source/Documentation/trace/ftrace.txt)
+
 * systemtap <br>
+  *key word: probe*
   compile
   > target <br>
   > ./configure --host=arm-linux-gnueabi --disable-translator --with-elfutils=/home/patrick/tasks/app/elfutils-0.159 --without-python2-probes --without-python3-probes --without-selinux --disable-docs <br>
@@ -73,20 +82,6 @@ profiling (EXPERIMENTAL) <br>
   查看probe point
   > stap -r [kernel source directory] -a arm -B CROSS_COMPILE=[cross-compile] -L 'kernel.statement("do_nanosleep@kernel/time/hrtimer.c:*")'
 
-* perf <br>
- [Linux 性能诊断 perf使用指南](https://github.com/digoal/blog/blob/master/201611/20161127_01.md) <br>
-  cross compile
-  >Makefile <br>
-  export EXTLIBS =--static -lelf -lebl -I/home/patrick/tasks/app/zlib-1.2.8/install_gnueabi/include -I/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/include -L/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/lib <br>
-  export EXTRA_CFLAGS=-I/home/patrick/tasks/app/zlib-1.2.8/install_gnueabi/include -I/home/patrick/tasks/app/elfutils-0.159/install_gnueabi/include <br>
-  build <br>
-  make -j4  LDFLAGS=-static ARCH=arm CROSS_COMPILE=/home/patrick/tasks/new_platform/freescale/l4.1.15/toolchain/gcc-linaro-4.9.4-2017.01-i686_arm-linux-gnueabi/bin/arm-linux-gnueabi-
-
-  火焰图
-  > git clone https://github.com/brendangregg/FlameGraph <br>
-  perf record -F 99 -a -g -- sleep 60 <br>
-  perf script | ./stackcollapse-perf.pl > out.perf-folded <br>
-  ./flamegraph.pl out.perf-folded > perf-kernel.svg <br>
 * gdb
 * strace、ltrace
 ### 红黑树
