@@ -111,6 +111,15 @@ governor
 
 > cpu_down
 
+## RT
+* 临界区可抢占（部分spinlock换成mutex，按优先级排队）
+>优先级反转
+>
+><img src="pictures/3.png" width = "400" height = "180" align=center />
+* 高精度时钟
+* 中断线程化 (可选，如tick没有线程化)
+* 软中断线程化 (同上)
+* 实时调度算法
 
 ## ARM boot
 ```
