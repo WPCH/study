@@ -203,4 +203,6 @@ bit[16~31]：表示有一个正在持有或pending状态的写者，以及睡眠
   lda、stl<br>
  ![img](pictures/7.png)
 
-* 原因，原理见perfbook
+* 原因
+> CPU A对memory进行操作，CPU B观测到的顺序可能与CPU A的操作不一致<br>
+> 详见perfbook
