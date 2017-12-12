@@ -1,4 +1,12 @@
-[TOC]
+* [ARM SoC](#arm-soc)
+* [Load/Store](#loadstore)
+  * [Load](#load)
+  * [Store](#store)
+* [Memory Barrier](#memory-barrier)
+* [PoU/PoC](#poupoc)
+* [Inner/Outer/Non Shareable](#innerouternon-shareable)
+* [指令集, 异常, MMU等（该部分细节参考ARM文档）](#指令集-异常-mmu等该部分细节参考arm文档)
+
 ### ARM SoC
 > <img src="pictures/1.png" width = "600" height = "310" align=center />
 
@@ -7,8 +15,8 @@
 ### Load/Store
 > <img src="pictures/3.png" width = "600" height = "420" align=center />
 >
-> Read Buffer、Write Buffer：与下一级存储设备进行数据交互
-> Eviction Buffer：cache line换出缓冲  
+> Read Buffer、Write Buffer：与下一级存储设备进行数据交互<br>
+> Eviction Buffer：cache line换出缓冲<br>
 > Linefill Buffer：cache line填充缓冲
 #### Load
 > Non-Cacheable
@@ -55,7 +63,7 @@
 ### Inner/Outer/Non Shareable
 > 页属性，页表设定，定义了操作被广播的范围
 
-### 指令集、异常、MMU等（该部分细节参考ARM文档）
+### 指令集, 异常, MMU等（该部分细节参考ARM文档）
 ```
 指令（realview汇编器指南）
   ARM指令

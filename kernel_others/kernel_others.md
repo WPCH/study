@@ -1,4 +1,10 @@
-[TOC]
+* [时间](#时间)
+* [SMP boot](#smp-boot)
+* [设备模型](#设备模型)
+* [电源管理](#电源管理)
+* [CPU core管理](#cpu-core管理)
+* [RT](#rt)
+* [ARM boot](#arm-boot)
 
 ## 时间
 * clocksoure

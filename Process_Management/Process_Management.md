@@ -1,5 +1,20 @@
 ## 进程管理与调度
-[TOC]
+
+* [程序上下文的理解](#程序上下文的理解)
+* [fork](#fork)
+* [schedule](#schedule)
+  - [scheduler_tick](#scheduler_tick)
+  - [__schedule](#__schedule)
+  - [调度时机(发生在内核空间时即内核抢占)](#调度时机发生在内核空间时即内核抢占)
+  - [context_switch](#context_switch)
+  - [优先级](#优先级)
+  - [wakeup](#wakeup)
+  - [CFS](#cfs)
+  - [负载](#负载)
+  - [组调度](#组调度)
+  - [SMP负载均衡](#smp负载均衡)
+    - [CPU域](#cpu域)
+    - [load_balance](#load_balance)
 
 ### 程序上下文的理解
 **程序context（C环境）**

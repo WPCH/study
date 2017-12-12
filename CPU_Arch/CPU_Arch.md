@@ -1,6 +1,29 @@
 ## CPU架构
-[TOC]
 
+* [体系结构(ISA)](#体系结构isa)
+* [微架构](#微架构)
+  - [pipeline](#pipeline)
+    - [经典5级流水线](#经典5级流水线)
+    - [流水线冒险](#流水线冒险)
+      - [结构冒险](#结构冒险)
+      - [数据冒险](#数据冒险)
+      - [控制冒险](#控制冒险)
+    - [分支预测](#分支预测)
+    - [乱序执行](#乱序执行)
+      - [指令相关性](#指令相关性)
+      - [去除指令相关性](#去除指令相关性)
+      - [乱序执行实现](#乱序执行实现)
+    - [并行](#并行)
+      - [指令并行](#指令并行)
+      - [数据并行](#数据并行)
+      - [线程并行](#线程并行)
+  - [Cache-memory系统](#cache-memory系统)
+    - [映射方式](#映射方式)
+    - [Cache write](#cache-write)
+    - [Cache地址](#cache地址)
+    - [Cache一致性](#cache一致性)
+    - [MESI protocol](#mesi-protocol)
+    - [Cache系统结构](#cache系统结构)
 ### 体系结构(ISA)
 ```
 CISC 指令数量多，功能多，变长
@@ -146,5 +169,6 @@ write back
 >
 >![img](pictures/27.png)
 
-###### Cache系统结构（MESI之类协议引起，带来memory order问题，引入memory barrier来解决）
+###### Cache系统结构
+提高MESI之类协议的执行效率，带来memory order问题，引入memory barrier来解决
 >![img](pictures/28.png)

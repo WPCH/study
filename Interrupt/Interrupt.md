@@ -1,6 +1,12 @@
-[TOC]
-
 ## 中断
+* [GIC](#gic)
+* [注册](#注册)
+* [处理](#处理)
+  - [Top half](#top-half)
+  - [Bottom half](#bottom-half)
+    - [softirq](#softirq)
+    - [tasklet](#tasklet)
+    - [workqueue](#workqueue)
 ### GIC
 
 ><img src="pictures/4.png" width = "450" height = "100" align=center />

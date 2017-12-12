@@ -1,6 +1,17 @@
-[TOC]
-
 ## 同步
+
+* [原子操作（arch-dependent）](#原子操作arch-dependent)
+* [per-cup变量](#per-cup变量)
+* [spinlock](#spinlock)
+* [rwspinlock](#rwspinlock)
+* [seqlock](#seqlock)
+* [信号量](#信号量)
+* [互斥体](#互斥体)
+* [读写信号量](#读写信号量)
+* [RCU](#rcu)
+* [完成量](#完成量)
+* [memory barrier](#memory-barrier)
+
 ```
 原因：中断、内核抢占、smp导致资源的并发访问
 ```
