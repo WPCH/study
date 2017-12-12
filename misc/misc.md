@@ -41,7 +41,7 @@ small chunk：small bins-->last remainder
 
 * objdump、addr2line
 * perf <br>
-  *key word: count*
+  *key word: count*<br>
  [Linux 性能诊断 perf使用指南](https://github.com/digoal/blog/blob/master/201611/20161127_01.md) <br>
   cross compile
   >Makefile <br>
@@ -57,13 +57,13 @@ small chunk：small bins-->last remainder
   ./flamegraph.pl out.perf-folded > perf-kernel.svg <br>
 
 * ftrace <br>
-  *key word: trace*
+  *key word: trace*<br>
   <img src="pictures/25.png" width = "440" height = "320" align=center />
 
   [Documentation/trace/ftrace.txt](http://elixir.free-electrons.com/linux/latest/source/Documentation/trace/ftrace.txt)
 
 * systemtap <br>
-  *key word: probe*
+  *key word: probe*<br>
   compile
   > target <br>
   > ./configure --host=arm-linux-gnueabi --disable-translator --with-elfutils=/home/patrick/tasks/app/elfutils-0.159 --without-python2-probes --without-python3-probes --without-selinux --disable-docs <br>
@@ -100,6 +100,9 @@ profiling (EXPERIMENTAL) <br>
 ><img src="pictures/19.png" width = "320" height = "320" align=center />
 ##### 构造过程
 ><img src="pictures/20.png" width = "600" height = "700" align=center />
+
+### 基数树
+><img src="pictures/26.png" width = "420" height = "300" align=center />
 
 ### driver
 #### USB
